@@ -1,6 +1,5 @@
 from pythonmonkey import eval as js_eval
 
-
 def eval_js(function: str) -> int | None:
     match function:
         case 'document.querySelectorAll(\'body\').length':
