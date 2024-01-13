@@ -5,8 +5,7 @@ from aiofiles.ospath import exists
 from loguru import logger
 
 
-def get_value(file_json: dict,
-                    *keys) -> str | None:
+def get_value(file_json: dict, *keys) -> str | None:
     for key in keys:
         if key in file_json:
             return file_json[key]
@@ -37,6 +36,6 @@ async def read_session_json_file(session_name: str) -> dict:
         }
 
     except Exception as error:
-        logger.error(f'{session_name} | Ошибка при чтении .json файла: {error}')
+        logger.error(f'{session_name} | خطا در خواندن فایل .json: {error}')
 
     return result_dict
