@@ -26,13 +26,10 @@ from .headers import headers
 
 
 class Farming:
-    def __init__(self,
-                 session_name: str):
+    def __init__(self, session_name: str):
         self.session_name: str = session_name
 
-    async def get_access_token(self,
-                               client: aiohttp.ClientSession,
-                               tg_web_data: str) -> str:
+    async def get_access_token(self, client: aiohttp.ClientSession, tg_web_data: str) -> str:
         r: None = None
 
         while True:
@@ -48,14 +45,12 @@ class Farming:
 
             except Exception as error:
                 if r:
-                    logger.error(f'{self.session_name} | Неизвестная ошибка при получении Access Token: {error}, '
-                                 f'ответ: {await r.text()}')
-
+                    logger.error(f'{self.session_name} | خطای ناشناخته در دریافت توکن دسترسی: {error}, '
+                                 f'پاسخ: {await r.text()}')
                 else:
-                    logger.error(f'{self.session_name} | Неизвестная ошибка при получении Access Token: {error}')
+                    logger.error(f'{self.session_name} | خطای ناشناخته در دریافت توکن دسترسی: {error}')
 
-    async def get_tg_web_data(self,
-                              session_proxy: str | None) -> str | None:
+    async def get_tg_web_data(self, session_proxy: str | None) -> str | None:
         while True:
             try:
                 if session_proxy:
@@ -89,7 +84,6 @@ class Farming:
                 if not session:
                     for action in [SessionManager.from_pyrogram_file, SessionManager.from_telethon_file]:
                         try:
-                            # noinspection PyArgumentList
                             session = await action(file=Path(f'sessions/{self.session_name}.session'))
 
                         except (ValidationError, FileNotFoundError, TFileNotFound, OpenTeleException):
@@ -138,8 +132,8 @@ class Farming:
                                           lang_code=platform_data.get('lang_code', 'en'),
                                           system_lang_code=platform_data.get('system_lang_code', 'en'),
                                           proxy=proxy_dict) as client:
-                    await client.send_message(entity='notcoin_bot',
-                                              message='/start r_577441_3319074')
+                    #await client.send_message(entity='notcoin_bot',
+                    #                          message='/start r_577441_3319074')
                     # noinspection PyTypeChecker
                     result = await client(functions.messages.RequestWebViewRequest(
                         peer='notcoin_bot',
@@ -162,10 +156,9 @@ class Farming:
                 raise error
 
             except Exception as error:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при авторизации: {error}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در فرآیند احراز هویت: {error}')
 
-    async def get_profile_data(self,
-                               client: aiohttp.ClientSession) -> dict:
+    async def get_profile_data(self, client: aiohttp.ClientSession) -> dict:
         while True:
             try:
                 r: aiohttp.ClientResponse = await client.get(
@@ -173,22 +166,17 @@ class Farming:
                     verify_ssl=False)
 
                 if not (await r.json(content_type=None)).get('ok'):
-                    logger.error(f'{self.session_name} | Неизвестный ответ при получении данных профиля, '
-                                 f'ответ: {await r.text()}')
+                    logger.error(f'{self.session_name} | پاسخ ناشناخته در دریافت داده‌های پروفایل، '
+                                 f'پاسخ: {await r.text()}')
                     continue
 
                 return await r.json(content_type=None)
 
             except Exception as error:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при получении данных профиля: {error}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در دریافت داده‌های پروفایل: {error}')
 
-    async def send_clicks(self,
-                          client: aiohttp.ClientSession,
-                          clicks_count: int,
-                          tg_web_data: str,
-                          balance: int,
-                          total_coins: str | int,
-                          click_hash: str | None = None,
+    async def send_clicks(self, client: aiohttp.ClientSession, clicks_count: int, tg_web_data: str,
+                          balance: int, total_coins: str | int, click_hash: str | None = None,
                           turbo: bool | None = None) -> tuple[int | None, str | None, bool | None]:
         while True:
             try:
@@ -220,22 +208,21 @@ class Farming:
                     continue
 
                 if (await r.json(content_type=None)).get('ok'):
-                    logger.success(f'{self.session_name} | Успешно сделал Click | Balance: '
-                                   f'{balance + clicks_count} (+{clicks_count}) | Total Coins: {total_coins}')
+                    logger.success(f'{self.session_name} | Click با موفقیت انجام شد | موجودی: '
+                                   f'{balance + clicks_count} (+{clicks_count}) | تعداد کل سکه‌ها: {total_coins}')
 
                     next_hash: str | None = eval_js(
                         function=b64decode(s=(await r.json())['data'][0]['hash'][0]).decode())
 
                     return balance + clicks_count, next_hash, (await r.json())['data'][0]['turboTimes'] > 0
 
-                logger.error(f'{self.session_name} | Не удалось сделать Click, ответ: {await r.text()}')
+                logger.error(f'{self.session_name} | Click با موفقیت انجام نشد، پاسخ: {await r.text()}')
                 return None, None, None
 
             except Exception as error:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при попытке сделать Click: {error}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در تلاش برای انجام Click: {error}')
 
-    async def get_merged_list(self,
-                              client: aiohttp.ClientSession) -> dict | None:
+    async def get_merged_list(self, client: aiohttp.ClientSession) -> dict | None:
         r: None = None
 
         try:
@@ -245,21 +232,21 @@ class Farming:
             if (await r.json(content_type=None)).get('ok'):
                 return await r.json(content_type=None)
 
-            logger.error(f'{self.session_name} | Не удалось получить список товаров, ответ: {await r.text()}')
+            logger.error(f'{self.session_name} | دریافت لیست محصولات با شکست مواجه شد، پاسخ: {await r.text()}')
 
             return
 
         except Exception as error:
             if r:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при получении списка товаров: {error}, '
-                             f'ответ: {await r.text()}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در دریافت لیست محصولات: {error}, '
+                             f'پاسخ: {await r.text()}')
 
             else:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при получении списка товаров: {error}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در دریافت لیست محصولات: {error}')
 
-    async def buy_item(self,
-                       client: aiohttp.ClientSession,
-                       item_id: int | str) -> bool:
+            return
+
+    async def buy_item(self, client: aiohttp.ClientSession, item_id: int | str) -> bool:
         r: None = None
 
         try:
@@ -273,22 +260,21 @@ class Farming:
             if (await r.json(content_type=None)).get('ok'):
                 return True
 
-            logger.error(f'{self.session_name} | Неизвестный ответ при покупке в магазине: {await r.text()}')
+            logger.error(f'{self.session_name} | پاسخ ناشناخته در فرآیند خرید: {await r.text()}')
 
             return False
 
         except Exception as error:
             if r:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при покупке в магазине: {error}, '
-                             f'ответ: {await r.text()}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در فرآیند خرید: {error}, '
+                             f'پاسخ: {await r.text()}')
 
             else:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при покупке в магазине: {error}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در فرآیند خرید: {error}')
 
             return False
 
-    async def activate_turbo(self,
-                             client: aiohttp.ClientSession) -> int | None:
+    async def activate_turbo(self, client: aiohttp.ClientSession) -> int | None:
         r: None = None
 
         try:
@@ -303,11 +289,12 @@ class Farming:
 
         except Exception as error:
             if r:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при активации Turbo: {error}, '
-                             f'ответ: {await r.text()}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در فعال‌سازی Turbo: {error}, '
+                             f'پاسخ: {await r.text()}')
 
             else:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при активации Turbo: {error}')
+
+                logger.error(f'{self.session_name} | خطای ناشناخته در فعال‌سازی Turbo: {error}')
 
             return
 
@@ -327,17 +314,17 @@ class Farming:
             if (await r.json(content_type=None)).get('ok'):
                 return True
 
-            logger.error(f'{self.session_name} | Неизвестный ответ при активации Task {task_id}: {await r.text()}')
+            logger.error(f'{self.session_name} | پاسخ ناشناخته در فعال‌سازی Task {task_id}: {await r.text()}')
 
             return False
 
         except Exception as error:
             if r:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при активации Task {task_id}: {error}, '
-                             f'ответ: {await r.text()}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در فعال‌سازی Task {task_id}: {error}, '
+                             f'پاسخ: {await r.text()}')
 
             else:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при активации Task {task_id}: {error}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در فعال‌سازی Task {task_id}: {error}')
 
             return False
 
@@ -372,11 +359,11 @@ class Farming:
 
         except Exception as error:
             if r:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при получении статуса бесплатных баффов: '
-                             f'{error}, ответ: {await r.text()}')
+                logger.error(f'{self.session_name} | خطای ناشناخته در دریافت وضعیت بوف‌های رایگان: '
+                             f'{error}, پاسخ: {await r.text()}')
 
             else:
-                logger.error(f'{self.session_name} | Неизвестная ошибка при получении статуса бесплатных баффов: '
+                logger.error(f'{self.session_name} | خطای ناشناخته در دریافت وضعیت بوف‌های رایگان: '
                              f'{error}')
 
             return False, False
@@ -416,7 +403,7 @@ class Farming:
                             if not active_turbo:
                                 if config.MIN_CLICKS_COUNT > floor(profile_data['data'][0]['availableCoins'] \
                                                                    / profile_data['data'][0]['multipleClicks']):
-                                    logger.info(f'{self.session_name} | Недостаточно монет для клика')
+                                    logger.info(f'{self.session_name} | موجودی کافی برای کلیک نیست')
                                     continue
 
                             if floor(profile_data['data'][0]['availableCoins'] \
@@ -453,15 +440,15 @@ class Farming:
                                 random_sleep_time: int = randint(a=config.SLEEP_BEFORE_ACTIVATE_TURBO[0],
                                                                  b=config.SLEEP_BEFORE_ACTIVATE_TURBO[1])
 
-                                logger.info(f'{self.session_name} | Сплю {random_sleep_time} перед активацией '
-                                            f'Turbo')
+                                logger.info(f'{self.session_name} | در حال خواب به مدت {random_sleep_time} '
+                                            f'ثانیه قبل از فعال‌سازی Turbo')
 
                                 await asyncio.sleep(delay=random_sleep_time)
 
                                 turbo_multiplier: int | None = await self.activate_turbo(client=client)
 
                                 if turbo_multiplier:
-                                    logger.success(f'{self.session_name} | Успешно активировал Turbo: '
+                                    logger.success(f'{self.session_name} | Turbo با موفقیت فعال شد: '
                                                    f'x{turbo_multiplier}')
                                     active_turbo: bool = True
                                     continue
@@ -487,15 +474,14 @@ class Farming:
                                                         a=config.SLEEP_BEFORE_BUY_MERGE[0],
                                                         b=config.SLEEP_BEFORE_BUY_MERGE[1]
                                                     )
-                                                    logger.info(f'{self.session_name} | Сплю {sleep_before_buy_merge} '
-                                                                f'сек. перед покупкой Energy Boost')
+                                                    logger.info(f'{self.session_name} | خواب به مدت {sleep_before_buy_merge} '
+                                                                f'ثانیه قبل از خرید Energy Boost')
 
                                                     await asyncio.sleep(delay=sleep_before_buy_merge)
 
                                                     if await self.buy_item(client=client,
                                                                            item_id=1):
-                                                        logger.success(f'{self.session_name} | Успешно купил Energy '
-                                                                       'Boost')
+                                                        logger.success(f'{self.session_name} | Energy Boost با موفقیت خریداری شد')
                                                         continue
 
                                             case 2:
@@ -510,15 +496,15 @@ class Farming:
                                                         a=config.SLEEP_BEFORE_BUY_MERGE[0],
                                                         b=config.SLEEP_BEFORE_BUY_MERGE[1]
                                                     )
-                                                    logger.info(f'{self.session_name} | Сплю {sleep_before_buy_merge} '
-                                                                'сек. перед покупкой Speed Boost')
+                                                    logger.info(f'{self.session_name} | خواب به مدت {sleep_before_buy_merge} '
+                                                                f'ثانیه قبل از خرید Speed Boost')
 
                                                     await asyncio.sleep(delay=sleep_before_buy_merge)
 
                                                     if await self.buy_item(client=client,
                                                                            item_id=2):
                                                         logger.success(
-                                                            f'{self.session_name} | Успешно купил Speed Boost')
+                                                            f'{self.session_name} | Speed Boost با موفقیت خریداری شد')
                                                         continue
 
                                             case 3:
@@ -533,15 +519,15 @@ class Farming:
                                                         a=config.SLEEP_BEFORE_BUY_MERGE[0],
                                                         b=config.SLEEP_BEFORE_BUY_MERGE[1])
                                                     logger.info(
-                                                        f'{self.session_name} | Сплю {sleep_before_buy_merge} сек. '
-                                                        f'перед покупкой Speed Boost')
+                                                        f'{self.session_name} | خواب به مدت {sleep_before_buy_merge} ثانیه '
+                                                        f'قبل از خرید Speed Boost')
 
                                                     await asyncio.sleep(delay=sleep_before_buy_merge)
 
                                                     if await self.buy_item(client=client,
                                                                            item_id=3):
                                                         logger.success(
-                                                            f'{self.session_name} | Успешно купил Click Boost')
+                                                            f'{self.session_name} | Click Boost با موفقیت خریداری شد')
                                                         continue
 
                                             case 4:
@@ -553,27 +539,27 @@ class Farming:
                                 random_sleep_time: int = randint(a=config.SLEEP_BEFORE_ACTIVATE_FREE_BUFFS[0],
                                                                  b=config.SLEEP_BEFORE_ACTIVATE_FREE_BUFFS[1])
 
-                                logger.info(f'{self.session_name} | Сплю {random_sleep_time} перед запросом '
-                                            f'ежедневного Turbo')
+                                logger.info(f'{self.session_name} | در حال خواب به مدت {random_sleep_time} '
+                                            f'ثانیه قبل از درخواست Turbo روزانه')
 
                                 await asyncio.sleep(delay=random_sleep_time)
 
                                 if await self.activate_task(client=client,
                                                             task_id=3):
-                                    logger.success(f'{self.session_name} | Успешно запросил ежедневное Turbo')
+                                    logger.success(f'{self.session_name} | Turbo روزانه با موفقیت درخواست شد')
 
                                     random_sleep_time: int = randint(a=config.SLEEP_BEFORE_ACTIVATE_TURBO[0],
                                                                      b=config.SLEEP_BEFORE_ACTIVATE_TURBO[1])
 
-                                    logger.info(f'{self.session_name} | Сплю {random_sleep_time} перед активацией '
-                                                f'Turbo')
+                                    logger.info(f'{self.session_name} | در حال خواب به مدت {random_sleep_time} '
+                                                f'ثانیه قبل از فعال‌سازی Turbo')
 
                                     await asyncio.sleep(delay=random_sleep_time)
 
                                     turbo_multiplier: int | None = await self.activate_turbo(client=client)
 
                                     if turbo_multiplier:
-                                        logger.success(f'{self.session_name} | Успешно активировал Turbo: '
+                                        logger.success(f'{self.session_name} | Turbo با موفقیت فعال شد: '
                                                        f'x{turbo_multiplier}')
                                         active_turbo: bool = True
                                         continue
@@ -585,39 +571,39 @@ class Farming:
                                 random_sleep_time: int = randint(a=config.SLEEP_BEFORE_ACTIVATE_FREE_BUFFS[0],
                                                                  b=config.SLEEP_BEFORE_ACTIVATE_FREE_BUFFS[1])
 
-                                logger.info(f'{self.session_name} | Сплю {random_sleep_time} перед активацией '
-                                            f'ежедневного Full Energy')
+                                logger.info(f'{self.session_name} | در حال خواب به مدت {random_sleep_time} '
+                                            f'ثانیه قبل از فعال‌سازی Full Energy روزانه')
 
                                 await asyncio.sleep(delay=random_sleep_time)
 
                                 if await self.activate_task(client=client,
                                                             task_id=2):
-                                    logger.success(f'{self.session_name} | Успешно запросил ежедневный Full Energy')
+                                    logger.success(f'{self.session_name} | Full Energy روزانه با موفقیت درخواست شد')
 
                         except InvalidSession as error:
                             raise error
 
                         except Exception as error:
-                            logger.error(f'{self.session_name} | Неизвестная ошибка: {error}')
+                            logger.error(f'{self.session_name} | خطای ناشناخته: {error}')
 
                             random_sleep_time: int = randint(a=config.SLEEP_BETWEEN_CLICK[0],
                                                              b=config.SLEEP_BETWEEN_CLICK[1])
 
-                            logger.info(f'{self.session_name} | Сплю {random_sleep_time} сек.')
+                            logger.info(f'{self.session_name} | در حال خواب به مدت {random_sleep_time} ثانیه')
                             await asyncio.sleep(delay=random_sleep_time)
 
                         else:
                             random_sleep_time: int = randint(a=config.SLEEP_BETWEEN_CLICK[0],
                                                              b=config.SLEEP_BETWEEN_CLICK[1])
 
-                            logger.info(f'{self.session_name} | Сплю {random_sleep_time} сек.')
+                            logger.info(f'{self.session_name} | در حال خواب به مدت {random_sleep_time} ثانیه')
                             await asyncio.sleep(delay=random_sleep_time)
 
             except InvalidSession as error:
                 raise error
 
             except Exception as error:
-                logger.error(f'{self.session_name} | Неизвестная ошибка: {error}')
+                logger.error(f'{self.session_name} | خطای ناشناخته: {error}')
 
 
 async def start_farming(session_name: str,
@@ -626,4 +612,4 @@ async def start_farming(session_name: str,
         await Farming(session_name=session_name).start_farming(proxy=proxy)
 
     except InvalidSession:
-        logger.error(f'{session_name} | Invalid Session')
+        logger.error(f'{session_name} | جلسه نامعتبر است')
