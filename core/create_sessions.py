@@ -5,17 +5,16 @@ from loguru import logger
 from data import config
 from database import actions as db_actions
 
-
 async def create_sessions() -> None:
     while True:
-        session_name: str = input('\nВведите название сессии (для выхода нажмите Enter): ')
+        session_name: str = input('\nنام جلسه را وارد کنید (برای خروج Enter را فشار دهید): ')
 
         if not session_name:
             return
 
         while True:
-            proxy_str: str = input('Введите Proxy (type://user:pass@ip:port // type://ip:port, для использования без '
-                                   'Proxy нажмите Enter): ').replace('https://', 'http://')
+            proxy_str: str = input('پروکسی را وارد کنید (نوع://کاربر:رمز@آدرس:پورت // نوع://آدرس:پورت، برای استفاده بدون '
+                                   'پروکسی Enter را فشار دهید): ').replace('https://', 'http://')
 
             if proxy_str:
                 try:
@@ -32,7 +31,7 @@ async def create_sessions() -> None:
                     }
 
                 except ValueError:
-                    logger.error(f'Неверно указан Proxy, повторите попытку ввода')
+                    logger.error(f'پروکسی وارد شده اشتباه است، لطفاً دوباره تلاش کنید')
 
                 else:
                     break
@@ -53,7 +52,8 @@ async def create_sessions() -> None:
         async with session:
             user_data = await session.get_me()
 
-        logger.success(f'Успешно добавлена сессия {user_data.username} | {user_data.first_name} {user_data.last_name}')
+        logger.success(f'جلسه با موفقیت اضافه شد {user_data.username} | {user_data.first_name} {user_data.last_name}')
 
         await db_actions.add_session(session_name=session_name,
                                      session_proxy=proxy.as_url if proxy else '')
+
