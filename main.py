@@ -19,7 +19,6 @@ logger.add(stderr, format='<white>{time:HH:mm:ss}</white>'
                           ' | <cyan>{line}</cyan>'
                           ' - <white>{message}</white>')
 
-
 async def main() -> None:
     await on_startup_database()
 
@@ -27,7 +26,7 @@ async def main() -> None:
         case 1:
             await create_sessions()
 
-            logger.success('Сессии успешно добавлены')
+            logger.success('نشست‌ها با موفقیت اضافه شدند')
 
         case 2:
             tasks: list = [
@@ -39,8 +38,7 @@ async def main() -> None:
             await asyncio.gather(*tasks)
 
         case _:
-            logger.error('Действие выбрано некорректно')
-
+            logger.error('عملیات انتخاب شده نادرست است')
 
 if __name__ == '__main__':
     if not exists(path='sessions'):
@@ -61,11 +59,11 @@ if __name__ == '__main__':
                                 else current_file for current_file in listdir(path='sessions')
                                 if current_file.endswith('.session') or isdir(s=f'sessions/{current_file}')]
 
-    logger.info(f'Обнаружено {len(session_files)} сессий / {len(proxies)} прокси')
+    logger.info(f'تعداد {len(session_files)} نشست / {len(proxies)} پراکسی شناسایی شد')
 
-    user_action: int = int(input('\n1. Создать сессию'
-                                 '\n2. Запустить бота с существующих сессий'
-                                 '\nВыберите ваше действие: '))
+    user_action: int = int(input('\n1. ایجاد نشست'
+                                 '\n2. اجرای ربات با نشست‌های موجود'
+                                 '\nعملیات خود را انتخاب کنید: '))
     print()
 
     try:
